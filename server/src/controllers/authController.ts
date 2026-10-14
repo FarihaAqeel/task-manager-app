@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { z } from "zod";
 import { pool } from "../db";
 import jwt from "jsonwebtoken";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -79,6 +80,24 @@ export const login = async (req: Request, res: Response) => {
       token,
       user: { id: user.id, name: user.name, email: user.email },
     });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const getMe = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, email, created_at FROM users WHERE id = $1",
+      [req.userId]
+    );
+
+    if (!result.rows[0]) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({ user: result.rows[0] });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Something went wrong" });
