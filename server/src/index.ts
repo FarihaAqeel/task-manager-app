@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { pool } from "./db";
 import authRoutes from "./routes/authRoutes";
 import projectRoutes from "./routes/projectRoutes";
+import taskRoutes from "./routes/taskRoutes";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api", taskRoutes);
 
 app.get("/api/health", async (_req, res) => {
   try {
